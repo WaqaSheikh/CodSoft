@@ -1,0 +1,146 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <ctime>
+
+using namespace std;
+
+struct Book {
+    string title;
+    string author;
+    string ISBN;
+    bool available;
+    time_t dueDate;
+
+    Book(string t, string a, string i) : title(t), author(a), ISBN(i), available(true), dueDate(0) {}
+};
+
+class Library {
+private:
+    vector<Book> books;
+
+public:
+    void addBook(const string& title, const string& author, const string& ISBN) {
+        books.emplace_back(title, author, ISBN);
+        cout << "Book added successfully!\n";
+    }
+
+    void searchBook(const string& keyword) {
+        cout << "Search Results:\n";
+        for (const auto& book : books) {
+            if (book.title.find(keyword) != string::npos ||
+                book.author.find(keyword) != string::npos ||
+                book.ISBN.find(keyword) != string::npos) {
+                cout << "Title: " << book.title << ", Author: " << book.author << ", ISBN: " << book.ISBN << endl;
+            }
+        }
+    }
+
+    void checkOutBook(const string& ISBN) {
+        auto it = find_if(books.begin(), books.end(), [&](const Book& b) { return b.ISBN == ISBN && b.available; });
+        if (it != books.end()) {
+            it->available = false;
+            it->dueDate = time(nullptr) + 604800; // Set due date to 1 week from today
+            cout << "Book checked out successfully!\n";
+        } else {
+            cout << "Book not available for checkout.\n";
+        }
+    }
+
+    void returnBook(const string& ISBN) {
+        auto it = find_if(books.begin(), books.end(), [&](const Book& b) { return b.ISBN == ISBN && !b.available; });
+        if (it != books.end()) {
+            it->available = true;
+            cout << "Book returned successfully!\n";
+        } else {
+            cout << "Invalid ISBN or book is already available.\n";
+        }
+    }
+
+    void calculateFine(const string& ISBN) {
+        auto it = find_if(books.begin(), books.end(), [&](const Book& b) { return b.ISBN == ISBN && !b.available; });
+        if (it != books.end()) {
+            time_t currentTime = time(nullptr);
+            double fine = 0.0;
+            if (currentTime > it->dueDate) {
+                fine = difftime(currentTime, it->dueDate) / 86400 * 0.50; // 0.50 USD fine per day
+            }
+            cout << "Fine for overdue book: $" << fine << endl;
+        } else {
+            cout << "Invalid ISBN or book is not overdue.\n";
+        }
+    }
+};
+
+int main() {
+    Library library;
+
+    while (true) {
+        cout << "\n------ LIBRARY MANAGEMENT SYSTEM ------\n";
+        cout << "1. Add Book\n";
+        cout << "2. Search Book\n";
+        cout << "3. Check Out Book\n";
+        cout << "4. Return Book\n";
+        cout << "5. Calculate Fine\n";
+        cout << "6. Exit\n";
+        cout << "---------------------------------------\n";
+
+        int choice;
+        cout << "Enter your choice (1-6): ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                cin.ignore();
+                string title, author, ISBN;
+                cout << "Enter book title: ";
+                getline(cin, title);
+                cout << "Enter book author: ";
+                getline(cin, author);
+                cout << "Enter book ISBN: ";
+                getline(cin, ISBN);
+                library.addBook(title, author, ISBN);
+                break;
+            }
+            case 2: {
+                cin.ignore();
+                string keyword;
+                cout << "Enter search keyword: ";
+                getline(cin, keyword);
+                library.searchBook(keyword);
+                break;
+            }
+            case 3: {
+                cin.ignore();
+                string ISBN;
+                cout << "Enter ISBN of the book to check out: ";
+                getline(cin, ISBN);
+                library.checkOutBook(ISBN);
+                break;
+            }
+            case 4: {
+                cin.ignore();
+                string ISBN;
+                cout << "Enter ISBN of the book to return: ";
+                getline(cin, ISBN);
+                library.returnBook(ISBN);
+                break;
+            }
+            case 5: {
+                cin.ignore();
+                string ISBN;
+                cout << "Enter ISBN of the book to calculate fine: ";
+                getline(cin, ISBN);
+                library.calculateFine(ISBN);
+                break;
+            }
+            case 6:
+                cout << "Exiting the library management system. Goodbye!\n";
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    }
+
+    return 0;
+}
