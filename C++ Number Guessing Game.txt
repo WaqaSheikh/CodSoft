@@ -1,0 +1,56 @@
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+int main() {
+    int lower, upper;
+
+    // Taking Inputs
+    cout << "Enter Lower bound: ";
+    cin >> lower;
+
+    // Taking Inputs
+    cout << "Enter Upper bound: ";
+    cin >> upper;
+
+    // Generating random number between the lower and upper
+    srand(time(0));
+    int x = rand() % (upper - lower + 1) + lower;
+
+    cout << "\n\tYou've only " << round(log2(upper - lower + 1))
+              << " chances to guess the integer!\n";
+
+    // Initializing the number of guesses.
+    int count = 0;
+
+    // For calculation of the minimum number of guesses depends upon the range
+    while (count < round(log2(upper - lower + 1))) {
+        count++;
+
+        // Taking guessing number as input
+        int guess;
+        cout << "Guess a number: ";
+        cin >> guess;
+
+        // Condition testing
+        if (x == guess) {
+            cout << "Congratulations you did it in " << count << " try\n";
+            // Once guessed, loop will break
+            break;
+        } else if (x > guess) {
+            cout << "You guessed too small!\n";
+        } else if (x < guess) {
+            cout << "You Guessed too high!\n";
+        }
+    }
+
+    // If guessing is more than required guesses, shows this output.
+    if (count >= round(log2(upper - lower + 1))) {
+        cout << "\nThe number is " << x << "\n";
+        cout << "\tBetter Luck Next time!\n";
+    }
+
+    return 0;
+}
